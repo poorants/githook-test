@@ -21,7 +21,7 @@ if [ "$OS" = "Linux" ] || [ "$OS" = "Mac" ]; then
     # Linux 또는 macOS용 스크립트
     VERSION=$(git describe --tags --always)
     COMMIT_HASH=$(git rev-parse --short HEAD)
-    BUILD_DATE=$(date)
+    BUILD_DATE=$(git show -s --format=%cs HEAD)
 
     echo "Version: $VERSION" > version.info
     echo "Commit Hash: $COMMIT_HASH" >> version.info
@@ -30,17 +30,8 @@ if [ "$OS" = "Linux" ] || [ "$OS" = "Mac" ]; then
     git add version.info
 
 elif [ "$OS" = "Windows" ]; then
-    # Windows용 스크립트 (PowerShell 호출)
-    powershell.exe -ExecutionPolicy Bypass -Command "
-    \$VERSION = git describe --tags --always;
-    \$COMMIT_HASH = git rev-parse --short HEAD;
-    \$BUILD_DATE = Get-Date -Format 'yyyy-MM-ddTHH:mm:ss';
-    'Version: \$VERSION' | Out-File -FilePath version.info;
-    'Commit Hash: \$COMMIT_HASH' | Out-File -FilePath version.info -Append;
-    'Build Date: \$BUILD_DATE' | Out-File -FilePath version.info -Append;
-    git add version.info
-    "
+    powershell.exe -ExecutionPolicy Bypass -File hooks/update_version.ps1
 else
-    echo "Unknown operating system: $OS"
+    
     exit 1
 fi
